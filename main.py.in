@@ -92,10 +92,21 @@ IGNORED_FLAGS = {
 
 }  # type: Dict[str, int]
 
+#knowledge of regular express
+# r : raw string
+# ^ : match the start of the string
+# * : matches 0 or more repetitions
+# $ : match the end of the string
+# ? : match 0 or 1 characters of whatever precedes it
+# . : match a period or to match a slash
+
+
+# TODO create wrapper for fortan???
 # Known C/C++ compiler wrapper name patterns.
 COMPILER_PATTERN_WRAPPER = re.compile(r'^(distcc|ccache)$')
 
 # Known MPI compiler wrapper name patterns.
+# TODO mpifort, mpif77, mpif90
 COMPILER_PATTERNS_MPI_WRAPPER = re.compile(r'^mpi(cc|cxx|CC|c\+\+)$')
 
 # Known C compiler executable name patterns.
@@ -286,9 +297,12 @@ def command_entry_point(function):
 def intercept_build():
     # type: () -> int
     """ Entry point for 'intercept-build' command. """
-
+    
+    # list of args values
     args = parse_args_for_intercept_build()
+    # creat a new object Category which includes the arguments of compilers 
     category = Category(args.use_only, args.use_cc, args.use_cxx)
+    
     exit_code, current = capture(args, category)
 
     # To support incremental builds, it is desired to read elements from
@@ -312,9 +326,12 @@ def capture(args, category):
 
     with temporary_directory(prefix='intercept-') as tmp_dir:
         # run the build command
+        # add tem_dir into the environment as Intercept_build_target_dir
         environment = setup_environment(args, tmp_dir)
+        # return 0 if success, args.build stores commands such as make
         exit_code = run_build(args.build, env=environment)
-        # read the intercepted exec calls
+        # read the intercepted exec call
+        
         calls = (parse_exec_trace(file) for file in exec_trace_files(tmp_dir))
         safe_calls = (x for x in calls if x is not None)
         current = compilations(safe_calls, category)
@@ -470,6 +487,8 @@ def create_intercept_parser():
         default=[os.getenv('CXX', 'c++')],
         help="""Hint '%(prog)s' to classify the given program name as C++
         compiler.""")
+    #TODO add_argument for Fortan
+    
     parser.add_argument(
         '--use-only',
         action='store_true',
@@ -749,8 +768,10 @@ def get_mpi_call(wrapper):
 def temporary_directory(**kwargs):
     name = tempfile.mkdtemp(**kwargs)
     try:
+        #keep the state and return name
         yield name
     finally:
+        # executed, 
         shutil.rmtree(name)
 
 
