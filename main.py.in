@@ -508,7 +508,8 @@ def create_intercept_parser():
         metavar='<path>',
         dest='use_f',
         action='append',
-        default=[os.getenv('f95')],
+        #default=[os.getenv('f??','f95')],
+        default=['f95'],
         help="""Hint '%(prog)s' to classify the given program name as Fortan
         compiler.""")
     
