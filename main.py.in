@@ -132,7 +132,7 @@ COMPILER_PATTERNS_F = (
 
 TRACE_FILE_PREFIX = 'execution.'  # same as in ear.c
 
-C_LANG, CPLUSPLUS_LANG, OTHER, F = range(4)
+C_LANG, CPLUSPLUS_LANG, F, OTHER = range(4)
 
 Execution = collections.namedtuple('Execution', ['cwd', 'cmd'])
 
