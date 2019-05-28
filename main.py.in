@@ -487,12 +487,21 @@ def create_intercept_parser():
         default=[os.getenv('CXX', 'c++')],
         help="""Hint '%(prog)s' to classify the given program name as C++
         compiler.""")
-    #TODO add_argument for Fortan
+    
+    #add_argument for Fortan
+    parser.add_argument(
+        '--use-f',
+        metavar='<path>',
+        dest='use-f',
+        action='append',
+        default=[os.getenv('f95')],
+        help="""Hint '%(prog)s' to classify the given program name as Fortan
+        compiler.""")
     
     parser.add_argument(
         '--use-only',
         action='store_true',
-        help="""Only use compilers given to '--use-cc' and '--use-c++'.""")
+        help="""Only use compilers given to '--use-cc' and '--use-c++' and '--use-f'.""")
 
     advanced = parser.add_argument_group('advanced options')
     advanced.add_argument(
