@@ -107,7 +107,7 @@ COMPILER_PATTERN_WRAPPER = re.compile(r'^(distcc|ccache)$')
 
 # Known MPI compiler wrapper name patterns.
 # TODO mpifort, mpif77, mpif90
-COMPILER_PATTERNS_MPI_WRAPPER = re.compile(r'^mpi(cc|cxx|CC|c\+\+)$')
+COMPILER_PATTERNS_MPI_WRAPPER = re.compile(r'^mpi(cc|cxx|CC|c\+\+|fort|f77|f90)$')
 
 # Known C compiler executable name patterns.
 COMPILER_PATTERNS_CC = (
@@ -126,6 +126,10 @@ COMPILER_PATTERNS_CXX = (
     re.compile(r'^(g|)xl(C|c\+\+)$'),
 )
 
+COMPILER_PATTERNS_f = (
+    re.compile(r'^(f95)$'),
+)
+
 TRACE_FILE_PREFIX = 'execution.'  # same as in ear.c
 
 C_LANG, CPLUSPLUS_LANG, OTHER = range(3)
@@ -138,11 +142,13 @@ CompilationCommand = collections.namedtuple(
 
 
 class Category:
-
-    def __init__(self, only_use, c_compilers, cxx_compilers):
+    
+    # add f to Category, fortran compilers
+    def __init__(self, only_use, c_compilers, cxx_compilers, f_compilers):
         self.ignore = only_use
         self.c_compilers = [os.path.basename(cc) for cc in c_compilers]
         self.cxx_compilers = [os.path.basename(cc) for cc in cxx_compilers]
+        self.f_compilers = [os.path.basename(cc) for cc in f_compilers]
 
     def is_wrapper(self, cmd):
         # type: (Category, str) -> bool
@@ -301,7 +307,8 @@ def intercept_build():
     # list of args values
     args = parse_args_for_intercept_build()
     # creat a new object Category which includes the arguments of compilers 
-    category = Category(args.use_only, args.use_cc, args.use_cxx)
+    # add fortran compilers into Category
+    category = Category(args.use_only, args.use_cc, args.use_cxx, args.use_f)
     
     exit_code, current = capture(args, category)
 
@@ -492,7 +499,7 @@ def create_intercept_parser():
     parser.add_argument(
         '--use-f',
         metavar='<path>',
-        dest='use-f',
+        dest='use_f',
         action='append',
         default=[os.getenv('f95')],
         help="""Hint '%(prog)s' to classify the given program name as Fortan
