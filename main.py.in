@@ -653,6 +653,8 @@ class Compilation:
                 return command[0], C_LANG, parameters
             elif category.is_cxx_compiler(executable):
                 return command[0], CPLUSPLUS_LANG, parameters
+            elif category.is_f_compiler(executable):
+                return command[0], F ,parameters
         return None
 
     @classmethod
