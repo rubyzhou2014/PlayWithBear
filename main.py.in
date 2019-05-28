@@ -126,13 +126,13 @@ COMPILER_PATTERNS_CXX = (
     re.compile(r'^(g|)xl(C|c\+\+)$'),
 )
 
-COMPILER_PATTERNS_f = (
+COMPILER_PATTERNS_F = (
     re.compile(r'^(f95)$'),
 )
 
 TRACE_FILE_PREFIX = 'execution.'  # same as in ear.c
 
-C_LANG, CPLUSPLUS_LANG, OTHER = range(3)
+C_LANG, CPLUSPLUS_LANG, OTHER, F = range(4)
 
 Execution = collections.namedtuple('Execution', ['cwd', 'cmd'])
 
@@ -168,6 +168,13 @@ class Category:
         # type: (Category, str) -> bool
         use_match = Category._is_sting_match(cmd, self.cxx_compilers)
         pattern_match = Category._is_pattern_match(cmd, COMPILER_PATTERNS_CXX)
+        return use_match if self.ignore else (use_match or pattern_match)
+    
+    # check Fortran compiler
+    def is_f_compiler(self, cmd):
+        # type: (Category, str) -> bool
+        use_match = Category._is_sting_match(cmd, self.f_compilers)
+        pattern_match = Category._is_pattern_match(cmd, COMPILER_PATTERNS_F)
         return use_match if self.ignore else (use_match or pattern_match)
 
     @classmethod
