@@ -318,7 +318,9 @@ def intercept_build():
     category = Category(args.use_only, args.use_cc, args.use_cxx, args.use_f)
     
     exit_code, current = capture(args, category)
-
+    
+    print('intercept_build=>capture', exit_code, current)
+    
     # To support incremental builds, it is desired to read elements from
     # an existing compilation database from a previous run.
     if args.append and os.path.isfile(args.cdb):
@@ -651,6 +653,8 @@ class Compilation:
                 return command[0], C_LANG, parameters
             elif category.is_cxx_compiler(executable):
                 return command[0], CPLUSPLUS_LANG, parameters
+            elif category.is_f_compiler(executable):
+                return command[0], F ,parameters
         return None
 
     @classmethod
