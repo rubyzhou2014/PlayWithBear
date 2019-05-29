@@ -128,6 +128,7 @@ COMPILER_PATTERNS_CXX = (
 
 COMPILER_PATTERNS_F = (
     re.compile(r'^(f95)$'),
+    re.compile(r'^(gfortran)$')
 )
 
 TRACE_FILE_PREFIX = 'execution.'  # same as in ear.c
@@ -789,7 +790,9 @@ def classify_source(filename, c_compiler=True):
         '.s': 'assembly',
         '.S': 'assembly',
         '.sx': 'assembly',
-        '.asm': 'assembly'
+        '.asm': 'assembly',
+        '.f95': 'fortran',
+        '.f': 'fortran'
     }
 
     __, extension = os.path.splitext(os.path.basename(filename))

@@ -128,7 +128,8 @@ COMPILER_PATTERNS_CXX = (
 
 COMPILER_PATTERNS_F = (
     re.compile(r'^(f95)$'),
-)
+    re.compile(r'^(gfortran)$'),
+    )
 
 TRACE_FILE_PREFIX = 'execution.'  # same as in ear.c
 
@@ -318,9 +319,8 @@ def intercept_build():
     category = Category(args.use_only, args.use_cc, args.use_cxx, args.use_f)
     
     exit_code, current = capture(args, category)
-    
-    print('intercept_build=>capture', exit_code, current)
-    
+
+    #print("intercept=>capture", exit_code, current)
     # To support incremental builds, it is desired to read elements from
     # an existing compilation database from a previous run.
     if args.append and os.path.isfile(args.cdb):
@@ -349,9 +349,13 @@ def capture(args, category):
         # read the intercepted exec call
         
         calls = (parse_exec_trace(file) for file in exec_trace_files(tmp_dir))
+        
+  #      for item in calls:
+    #         print(item)
+        
         safe_calls = (x for x in calls if x is not None)
         current = compilations(safe_calls, category)
-
+       
         return exit_code, iter(set(current))
 
 
@@ -511,7 +515,7 @@ def create_intercept_parser():
         dest='use_f',
         action='append',
         #default=[os.getenv('f??','f95')],
-        default=['f95'],
+        default=['fXX','f95'],
         help="""Hint '%(prog)s' to classify the given program name as Fortan
         compiler.""")
     
@@ -610,6 +614,14 @@ class Compilation:
         :return: stream of CompilationDbEntry objects """
 
         candidate = cls._split_command(execution.cmd, category)
+        
+        #print('iter_from_execution+>candidate \n')
+        #if candidate:
+        #    for item in candidate:
+        #        print(item)
+        
+       # print('*******\n')
+       
         for source in candidate.files if candidate else []:
             output = candidate.output[0] if candidate.output else None
             phase = candidate.phase[0] if candidate.phase else '-c'
@@ -634,7 +646,11 @@ class Compilation:
 
         if command:  # not empty list will allow to index '0' and '1:'
             executable = os.path.basename(command[0])  # type: str
-            parameters = command[1:]  # type: List[str]
+            
+            parameters = command[1:] 
+            #print('_splitc, executable', executable)
+            
+            # type: List[str]
             # 'wrapper' 'parameters' and
             # 'wrapper' 'compiler' 'parameters' are valid.
             # Additionally, a wrapper can wrap another wrapper.
@@ -655,6 +671,7 @@ class Compilation:
                 return command[0], CPLUSPLUS_LANG, parameters
             elif category.is_f_compiler(executable):
                 return command[0], F ,parameters
+        
         return None
 
     @classmethod
@@ -670,6 +687,10 @@ class Compilation:
         compiler_and_arguments = cls._split_compiler(command, category)
         if compiler_and_arguments is None:
             return None
+        #else:
+        #    print('_split_command')
+        #    for item in compiler_and_arguments:
+        #        print('\n',item)
 
         # the result of this method
         result = CompilationCommand(compiler=compiler_and_arguments[0],
@@ -769,8 +790,11 @@ def classify_source(filename, c_compiler=True):
         '.s': 'assembly',
         '.S': 'assembly',
         '.sx': 'assembly',
-        '.asm': 'assembly'
-    }
+        '.asm': 'assembly',
+        '.f95':'fortran',
+        '.f90':'fortran',
+        '.f':'fortran'
+        }
 
     __, extension = os.path.splitext(os.path.basename(filename))
     return mapping.get(extension)
