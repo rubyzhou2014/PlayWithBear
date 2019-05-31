@@ -129,6 +129,7 @@ COMPILER_PATTERNS_CXX = (
 COMPILER_PATTERNS_F = (
     re.compile(r'^(f95)$'),
     re.compile(r'^(gfortran)$'),
+    re.compile(r'^(ifort)$')
     )
 
 TRACE_FILE_PREFIX = 'execution.'  # same as in ear.c
